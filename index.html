@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Test Series Menu</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1c1c1c; /* Dark Theme */
+            color: white;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h2 { margin-bottom: 25px; color: #00d2ff; }
+        .menu-container { width: 100%; max-width: 400px; }
+        
+        .test-card {
+            background: #2d2d2d;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            border: 1px solid #3d3d3d;
+        }
+        .test-info h3 { margin: 0; font-size: 18px; }
+        .test-info p { margin: 5px 0 0; font-size: 12px; color: #aaa; }
+        
+        .start-btn {
+            background: linear-gradient(135deg, #00d2ff 0%, #3a7bd5 100%);
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 14px;
+            transition: 0.3s;
+        }
+        .start-btn:active { transform: scale(0.95); opacity: 0.8; }
+    </style>
+</head>
+<body>
+
+    <h2>My Test Series</h2>
+
+    <div class="menu-container">
+        <div class="test-card">
+            <div class="test-info">
+                <h3>Chapter 1 Test</h3>
+                <p>Basic Concepts</p>
+            </div>
+            <a href="test1.html" class="start-btn">Start</a>
+        </div>
+
+        <div class="test-card">
+            <div class="test-info">
+                <h3>Chapter 2 Test</h3>
+                <p>Advanced Topics</p>
+            </div>
+            <a href="test2.html" class="start-btn">Start</a>
+        </div>
+
+        <div class="test-card">
+            <div class="test-info">
+                <h3>Chapter 3 Test</h3>
+                <p>Full Mock Test</p>
+            </div>
+            <a href="test3.html" class="start-btn">Start</a>
+        </div>
+    </div>
+
+    <script>
+        // Telegram Mini App ko set karna
+        const tg = window.Telegram.WebApp;
+        tg.expand(); // Screen ko poora bada karne ke liye
+        tg.ready();
+    </script>
+</body>
+</html>

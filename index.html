@@ -7,79 +7,71 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #1c1c1c; /* Dark Theme */
-            color: white;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #121212; /* Dark Mode */
+            color: #ffffff;
             margin: 0;
             padding: 20px;
+            text-align: center;
+        }
+        h2 { color: #00d2ff; margin-bottom: 30px; }
+        
+        .menu-container {
             display: flex;
             flex-direction: column;
-            align-items: center;
+            gap: 15px;
+            max-width: 400px;
+            margin: 0 auto;
         }
-        h2 { margin-bottom: 25px; color: #00d2ff; }
-        .menu-container { width: 100%; max-width: 400px; }
-        
-        .test-card {
-            background: #2d2d2d;
-            border-radius: 15px;
+
+        .test-box {
+            background: #1e1e1e;
             padding: 20px;
-            margin-bottom: 15px;
+            border-radius: 12px;
+            border: 1px solid #333;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            border: 1px solid #3d3d3d;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
         }
-        .test-info h3 { margin: 0; font-size: 18px; }
-        .test-info p { margin: 5px 0 0; font-size: 12px; color: #aaa; }
-        
+
+        .test-name { font-size: 18px; font-weight: 500; }
+
         .start-btn {
-            background: linear-gradient(135deg, #00d2ff 0%, #3a7bd5 100%);
+            background: #0088cc;
             color: white;
             text-decoration: none;
-            padding: 10px 20px;
+            padding: 10px 25px;
             border-radius: 8px;
             font-weight: bold;
-            font-size: 14px;
-            transition: 0.3s;
+            transition: 0.2s;
         }
-        .start-btn:active { transform: scale(0.95); opacity: 0.8; }
+
+        .start-btn:active {
+            background: #006699;
+            transform: scale(0.95);
+        }
     </style>
 </head>
 <body>
 
-    <h2>My Test Series</h2>
+    <h2>📑 Select Your Test</h2>
 
     <div class="menu-container">
-        <div class="test-card">
-            <div class="test-info">
-                <h3>Chapter 1 Test</h3>
-                <p>Basic Concepts</p>
-            </div>
-            <a href="test1.html" class="start-btn">Start</a>
-        </div>
-
-        <div class="test-card">
-            <div class="test-info">
-                <h3>Chapter 2 Test</h3>
-                <p>Advanced Topics</p>
-            </div>
+        <div class="test-box">
+            <span class="test-name">Chapter 2 Test</span>
             <a href="test2.html" class="start-btn">Start</a>
         </div>
 
-        <div class="test-card">
-            <div class="test-info">
-                <h3>Chapter 3 Test</h3>
-                <p>Full Mock Test</p>
-            </div>
+        <div class="test-box">
+            <span class="test-name">Chapter 3 Test</span>
             <a href="test3.html" class="start-btn">Start</a>
         </div>
     </div>
 
     <script>
-        // Telegram Mini App ko set karna
         const tg = window.Telegram.WebApp;
-        tg.expand(); // Screen ko poora bada karne ke liye
+        tg.expand(); // Isse Mini App poori screen par khulega
         tg.ready();
     </script>
 </body>

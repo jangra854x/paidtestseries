@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimate Paid Quiz</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- Super Animated Premium & Secure UI CSS --- */
+        * {
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: linear-gradient(-45deg, #0f2027, #203a43, #2c5364, #0b131e);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: #ffffff;
+            text-align: center;
+            padding-bottom: 50px;
+            overflow-x: hidden;
+        }
+
+        .header {
+            padding: 25px 20px;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            margin-bottom: 20px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+        }
+        .header h1 {
+            margin: 0 0 10px;
+            font-size: 38px;
+            font-weight: 700;
+            background: linear-gradient(90deg, #00eaff, #00ffcc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0px 4px 15px rgba(0, 234, 255, 0.3);
+        }
+        .header h2 { margin: 5px; color: #ffd700; font-weight: 600; letter-spacing: 1px; }
+        .header h3 { font-weight: 300; font-size: 16px; color: #d1d1d1; margin-top: 10px; }
+
+        .telegram-box {
+            width: 400px; max-width: 90%; margin: auto; background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(0, 234, 255, 0.3); padding: 12px; border-radius: 12px;
+            transition: 0.3s;
+        }
+        .telegram-box a { color: #00eaff; font-weight: bold; text-decoration: none; }
+
+        @keyframes popIn {
+            0% { opacity: 0; transform: scale(0.95) translateY(20px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .card {
+            width: 750px; max-width: 92%; margin: auto; margin-top: 30px;
+            background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(16px);
+            padding: 40px 30px; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255,255,255,0.05);
+            animation: popIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .slide-in-right {
+            animation: slideIn 0.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        }
+        @keyframes slideIn {
+            0% { opacity: 0; transform: translateX(50px); }
+            100% { opacity: 1; transform: translateX(0); }
+        }
+
+        input {
+            width: 85%; padding: 15px 20px; margin: 12px; border-radius: 12px;
+            background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white; font-size: 16px; outline: none; transition: all 0.3s ease;
+        }
+        input:focus { border-color: #00eaff; background: rgba(0, 0, 0, 0.5); }
+
+        button {
+            background: linear-gradient(135deg, #ffd700, #ffaa00); color: #111;
+            border: none; padding: 14px 30px; border-radius: 12px; cursor: pointer;
+            font-size: 16px; font-weight: 700; margin: 10px; transition: all 0.3s ease;
+        }
+        button:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 8px 25px rgba(255, 215, 0, 0.5); }
+        button:disabled { background: #555; color: #888; cursor: not-allowed; transform: none; box-shadow: none; }
+
+        .option {
+            background: rgba(255, 255, 255, 0.08); color: #fff; padding: 16px; margin: 12px 0;
+            border-radius: 12px; cursor: pointer; font-size: 18px; border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease; text-align: left; position: relative; overflow: hidden;
+        }
+        .option:hover { background: rgba(255, 255, 255, 0.15); transform: translateX(5px); }
+        
+        .correct { background: rgba(124, 252, 0, 0.2) !important; border: 1px solid #7CFC00 !important; color: #fff !important; }
+        .wrong { background: rgba(255, 107, 107, 0.2) !important; border: 1px solid #ff6b6b !important; color: #fff !important; }
+
+        .timer {
+            display: inline-block; background: rgba(0, 0, 0, 0.6); border: 1px solid #ffaa00;
+            color: #ffaa00; padding: 8px 18px; border-radius: 10px; margin: 15px; font-weight: 600; font-size: 16px;
+            transition: 0.3s;
+        }
+        
+        .danger-pulse {
+            border-color: #ff3333; color: #ff3333;
+            animation: pulseRed 1s infinite alternate;
+        }
+        @keyframes pulseRed {
+            0% { transform: scale(1); box-shadow: 0 0 5px rgba(255, 51, 51, 0.2); }
+            100% { transform: scale(1.1); box-shadow: 0 0 20px rgba(255, 51, 51, 0.8); }
+        }
+
+        #totalTimeLabel { color: #00eaff; font-weight: 600; margin-bottom: 10px; display: block; font-size: 14px; }
+
+        .progress { width: 100%; height: 12px; background: rgba(0, 0, 0, 0.5); border-radius: 10px; margin-bottom: 25px; overflow: hidden; }
+        .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, #00ffcc, #00eaff, #0077ff); border-radius: 10px; transition: width 0.5s; }
+
+        #question { font-size: 22px; font-weight: 600; margin-bottom: 20px; line-height: 1.5; text-align: left; padding: 0 10px; }
+        #result p { font-size: 18px; margin: 10px 0; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 8px; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>Yogesh (Max Test Series)</h1>
+    <h2>Ultimate Paid Quiz</h2>
+    <h3 id="chapter">Chapter 17: India – Location, Size and neighboring countries.
+    भारत – स्थिति, आकार एवं पड़ोसी देश।</h3>
+</div>
+
+<div class="telegram-box">
+    Telegram Support <br>
+    <a href="https://t.me/jangra854x">@jangra854x</a>
+</div>
+
+<div id="login" class="card">
+    <h2 style="margin-bottom: 25px;">लॉगिन करें</h2>
+    <p id="auth-msg" style="color: #ffd700; font-size: 14px;"></p>
+    <input id="name" placeholder="पूरा नाम" autocomplete="off">
+    <input id="age" placeholder="उम्र (Optional)" autocomplete="off">
+    <br><br>
+    <button id="startBtn" onclick="login()">टेस्ट शुरू करें</button>
+</div>
+
+<div id="quizBox" class="card" style="display:none">
+    <span id="totalTimeLabel">कुल समय: 00:00</span>
+    <div class="progress"><div class="progress-bar" id="progress"></div></div>
+    
+    <div id="animWrapper" class="slide-in-right">
+        <div id="question"></div>
+        <div id="options"></div>
+    </div>
+
+    <div class="timer" id="qTimer">समय: 120 सेकंड</div>
+    <br>
+    <button onclick="skip()" style="background: linear-gradient(135deg, #555, #333); color: white;">प्रश्न छोड़ें</button>
+    <button onclick="next()">अगला प्रश्न</button>
+</div>
+
+<div id="result" class="card" style="display:none"></div>
+
+<script>
+    // --- TELEGRAM CONFIG ---
+    const tg = window.Telegram.WebApp;
+    tg.expand(); // Full Screen for Mini App
+
+    // ID RESTRICTION: Apni ID yahan brackets mein dalein, e.g. [123456789, 987654321]
+    const ALLOWED_USERS = [7990149560]; 
+
+    const API = "https://script.google.com/macros/s/AKfycbxljKMrMWH6HnDAxOy3Apbtz9D9CAKtRqCx8FHp79jgfuxjtkiwn1vjmNg5CZF1btz8oA/exec";
+    const quizID = 1;
+
+    let questions = [];      
+    let totalQuestions = 0;  
+    let qGlobalIndex = 0;    
+    let apiPointer = 0;      
+    let correct = 0, wrong = 0, skipped = 0, score = 0;
+    let answered = false;
+    let questionTimer, totalTimerInterval;
+    let totalSeconds = 0;
+    let name, age;
+
+    // --- CHECK USER AUTH ON LOAD ---
+    window.onload = function() {
+        const user = tg.initDataUnsafe.user;
+        if (!user || !ALLOWED_USERS.includes(user.id)) {
+            document.getElementById("login").innerHTML = `
+                <h2 style="color:#ff6b6b">Access Denied!</h2>
+                <p>Aap is quiz ke liye authorized nahi hain.<br>ID: ${user ? user.id : 'N/A'}</p>
+            `;
+            tg.showAlert("Access Denied!");
+        } else {
+            document.getElementById("auth-msg").innerText = "नमस्ते @" + (user.username || user.first_name) + ", आप टेस्ट दे सकते हैं।";
+        }
+    };
+
+    async function login() {
+        name = document.getElementById("name").value.trim();
+        age = document.getElementById("age").value.trim();
+
+        if (!name) { alert("कृपया अपना नाम भरें"); return; }
+        
+        document.getElementById("startBtn").innerText = "Loading Test...";
+        document.getElementById("startBtn").disabled = true;
+
+        try {
+            document.getElementById("login").style.display = "none";
+            document.getElementById("quizBox").style.display = "block";
+            
+            totalTimerInterval = setInterval(() => {
+                totalSeconds++;
+                document.getElementById("totalTimeLabel").innerText = "कुल समय: " + formatTime(totalSeconds);
+            }, 1000);
+
+            await loadInitialBatch();
+
+        } catch (e) {
+            alert("Network Error!");
+            document.getElementById("startBtn").disabled = false;
+        }
+    }
+
+    // --- ANTI CHEAT SYSTEM ---
+    document.addEventListener('contextmenu', event => event.preventDefault());
+    
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I') || (e.ctrlKey && e.key === 'u')) {
+            e.preventDefault();
+        }
+    });
+
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden && document.getElementById("quizBox").style.display === "block") {
+            tg.showConfirm("⚠️ चेतावनी: टैब न बदलें!");
+        }
+    });
+
+    function formatTime(sec) {
+        let m = Math.floor(sec / 60);
+        let s = sec % 60;
+        return (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
+    }
+
+    async function loadInitialBatch() {
+        let res = await fetch(`${API}?quiz=${quizID}&start=${apiPointer}`);
+        let data = await res.json();
+        if(data.error) { alert(data.error); return; }
+        totalQuestions = data.total;
+        questions = data.questions;
+        apiPointer += 2; 
+        load();
+    }
+
+    async function fetchMore() {
+        if (apiPointer >= totalQuestions) return;
+        let res = await fetch(`${API}?quiz=${quizID}&start=${apiPointer}`);
+        let data = await res.json();
+        if(!data.error) {
+            questions = [...questions, ...data.questions];
+            apiPointer += 2;
+        }
+    }
+
+    function load() {
+        if(questions.length === 0) return;
+        answered = false;
+        let ques = questions[0]; 
+        
+        let optionsWithIndex = ques.options.map((opt, index) => ({ text: opt, isCorrect: index === ques.a }));
+        optionsWithIndex.sort(() => Math.random() - 0.5);
+        
+        ques.options = optionsWithIndex.map(o => o.text);
+        ques.a = optionsWithIndex.findIndex(o => o.isCorrect);
+
+        document.getElementById("question").innerHTML = "<b>प्रश्न " + (qGlobalIndex + 1) + " / " + totalQuestions + "</b><br><br>" + ques.q;
+        
+        let html = "";
+        ques.options.forEach((op, i) => {
+            html += `<div class="option" onclick="answer(${i})">${op}</div>`;
+        });
+        document.getElementById("options").innerHTML = html;
+
+        let animBox = document.getElementById("animWrapper");
+        animBox.classList.remove("slide-in-right");
+        void animBox.offsetWidth; 
+        animBox.classList.add("slide-in-right");
+
+        startTimer();
+        updateProgress();
+    }
+
+    function startTimer() {
+        let time = 120;
+        clearInterval(questionTimer);
+        let timerUI = document.getElementById("qTimer");
+        timerUI.classList.remove("danger-pulse");
+        timerUI.innerHTML = "समय: " + time + " सेकंड";
+        
+        questionTimer = setInterval(() => {
+            time--;
+            timerUI.innerHTML = "समय: " + time + " सेकंड";
+            
+            if(time <= 10 && !timerUI.classList.contains("danger-pulse")) {
+                timerUI.classList.add("danger-pulse");
+            }
+
+            if (time <= 0) { clearInterval(questionTimer); skip(); }
+        }, 1000);
+    }
+
+    function answer(i) {
+        if (answered) return;
+        answered = true;
+        clearInterval(questionTimer);
+        document.getElementById("qTimer").classList.remove("danger-pulse");
+
+        let ques = questions[0];
+        let ops = document.getElementsByClassName("option");
+        
+        if (i == ques.a) {
+            ops[i].classList.add("correct");
+            score += 2; correct++;
+            confetti({particleCount: 150, spread: 70, origin: { y: 0.6 }});
+        } else {
+            ops[i].classList.add("wrong");
+            ops[ques.a].classList.add("correct");
+            score -= 0.66; wrong++;
+        }
+    }
+
+    function skip() {
+        if(!answered) { skipped++; moveToNext(); } 
+        else { next(); }
+    }
+
+    function next() {
+        if (!answered) {
+            alert("कृपया उत्तर चुनें या 'प्रश्न छोड़ें' बटन का उपयोग करें।");
+            return;
+        }
+        moveToNext();
+    }
+
+    function moveToNext() {
+        questions.shift(); 
+        qGlobalIndex++;
+        
+        if (qGlobalIndex >= totalQuestions) { finish(); } 
+        else { 
+            if(questions.length <= 1) fetchMore(); 
+            load(); 
+        }
+    }
+
+    function updateProgress() {
+        let p = (qGlobalIndex / totalQuestions) * 100;
+        document.getElementById("progress").style.width = p + "%";
+    }
+
+    function finish() {
+        clearInterval(questionTimer);
+        clearInterval(totalTimerInterval);
+        document.getElementById("quizBox").style.display = "none";
+        let negative = (wrong * 0.66).toFixed(2);
+        
+        document.getElementById("result").style.display = "block";
+        document.getElementById("result").innerHTML = "<h2 style='color:#00eaff'>सबमिट हो रहा है...</h2>";
+
+        // Save with Telegram Data
+        const user = tg.initDataUnsafe.user || {};
+        fetch(API, {
+            method: "POST",
+            body: JSON.stringify({
+                name: name,
+                tgId: user.id || "N/A",
+                username: user.username || "N/A",
+                score: score.toFixed(2),
+                correct: correct,
+                wrong: wrong,
+                skipped: skipped,
+                negative: negative,
+                time: formatTime(totalSeconds)
+            })
+        }).then(() => {
+            document.getElementById("result").innerHTML = `
+                <h2 style='color:#7CFC00; font-size:32px;'>टेस्ट समाप्त! 🎉</h2>
+                <p><b>कुल अंक:</b> <span style="color:#ffd700">${score.toFixed(2)}</span></p>
+                <p><b>सही उत्तर:</b> ${correct}</p>
+                <p><b>गलत उत्तर:</b> ${wrong}</p>
+                <p><b>छोड़े गए प्रश्न:</b> ${skipped}</p>
+                <p><b>नेगेटिव मार्किंग:</b> <span style="color:#ff6b6b">${negative}</span></p>
+                <p><b>कुल समय:</b> ${formatTime(totalSeconds)}</p>
+                <br>
+                <button onclick="tg.close()">App Band Karein</button>
+            `;
+        });
+    }
+</script>
+</body>
+</html>

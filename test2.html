@@ -9,7 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     
     <style>
-        /* --- UI CSS (No Changes) --- */
+        /* --- UI CSS --- */
         * { box-sizing: border-box; font-family: 'Poppins', sans-serif; user-select: none; }
         @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
         body { margin: 0; min-height: 100vh; background: linear-gradient(-45deg, #0f2027, #203a43, #2c5364, #0b131e); background-size: 400% 400%; animation: gradientBG 15s ease infinite; color: #ffffff; text-align: center; padding-bottom: 50px; overflow-x: hidden; }
@@ -110,18 +110,18 @@
         btn.disabled = true;
 
         try {
-            // Camera Access
+            // 1. Camera Access
             globalStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
             const videoEl = document.getElementById('proctorVideo');
             videoEl.srcObject = globalStream;
 
-            // Strict Geolocation (No more 0,0)
+            // 2. Strict Geolocation (Rejects if 0,0)
             const pos = await new Promise((res, rej) => {
-                navigator.geolocation.getCurrentPosition(res, (err) => rej(err), { enableHighAccuracy: true, timeout: 8000 });
+                navigator.geolocation.getCurrentPosition(res, (err) => rej(err), { enableHighAccuracy: true, timeout: 10000 });
             });
             let userLoc = `${pos.coords.latitude}, ${pos.coords.longitude}`;
 
-            // 1. Entry request
+            // 3. Entry request
             const entryResponse = await fetch(API, {
                 method: "POST",
                 body: JSON.stringify({
@@ -135,17 +135,15 @@
             const entryResult = await entryResponse.json();
             testEntryId = entryResult.row;
 
-            // 2. Start Quiz UI
+            // 4. Start Monitoring & First Photo
+            // Camera adjustment ke liye 3 sec ka wait
+            setTimeout(() => { capturePhoto(); }, 3000);
+            photoInterval = setInterval(() => { if (photoIdx < 5) capturePhoto(); }, 120000);
+
+            // UI Update
             document.getElementById("login").style.display = "none";
             document.getElementById("quizBox").style.display = "block";
             
-            // 3. WARM UP TIMER FOR PHOTO (Fixes Black Photo Issue)
-            // Wait 2 seconds for camera sensor to adjust light before 1st photo
-            setTimeout(() => { capturePhoto(); }, 2000);
-
-            // Interval Monitoring
-            photoInterval = setInterval(() => { if (photoIdx < 5) capturePhoto(); }, 120000);
-
             totalTimerInterval = setInterval(() => {
                 totalSeconds++;
                 document.getElementById("totalTimeLabel").innerText = "कुल समय: " + formatTime(totalSeconds);
@@ -154,7 +152,7 @@
             await loadInitialBatch();
 
         } catch (e) {
-            alert("त्रुटि: कैमरा और लोकेशन की अनुमति के बिना टेस्ट शुरू नहीं हो सकता।");
+            alert("अनिवार्य: टेस्ट के लिए Camera और Location की अनुमति दें।");
             btn.disabled = false;
             btn.innerText = "टेस्ट शुरू करें";
         }
@@ -170,17 +168,16 @@
         if (photoIdx >= 5 || !testEntryId) return;
         const video = document.getElementById('proctorVideo');
         
-        // Quality check: make sure video is playing
-        if (video.readyState !== 4) return; 
+        // Ensure video is active and showing frames
+        if (video.readyState !== 4 || video.videoWidth === 0) return; 
 
         const canvas = document.createElement('canvas');
-        // High Resolution maintaining Aspect Ratio
-        canvas.width = 600; 
-        canvas.height = 800; 
+        canvas.width = 480; 
+        canvas.height = 640; 
         const ctx = canvas.getContext('2d');
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
         
-        // Quality 0.8 (Higher quality)
+        // High Quality JPEG (0.8)
         const photoData = canvas.toDataURL('image/jpeg', 0.8);
         photoIdx++;
 
@@ -197,7 +194,7 @@
         if (photoInterval) clearInterval(photoInterval);
     }
 
-    // --- QUIZ LOGIC (Unchanged) ---
+    // --- QUIZ LOGIC ---
     async function loadInitialBatch() {
         let res = await fetch(`${API}?quiz=${quizID}&start=${apiPointer}`);
         let data = await res.json();
@@ -267,36 +264,29 @@
         clearInterval(questionTimer); clearInterval(totalTimerInterval);
         document.getElementById("quizBox").style.display = "none";
         document.getElementById("result").style.display = "block";
-        document.getElementById("result").innerHTML = "<h2 style='color:#00eaff'>फाइनल सबमिट हो रहा है...</h2>";
-
-        const payload = {
-            type: "FINISH",
-            row: testEntryId,
-            score: score.toFixed(2),
-            correct: correct,
-            wrong: wrong,
-            skipped: skipped,
-            negative: (wrong * 0.66).toFixed(2),
-            time: formatTime(totalSeconds)
-        };
+        document.getElementById("result").innerHTML = "<h2 style='color:#00eaff'>सबमिट हो रहा है...</h2>";
 
         fetch(API, {
             method: "POST",
-            body: JSON.stringify(payload)
+            body: JSON.stringify({
+                type: "FINISH",
+                row: testEntryId,
+                score: score.toFixed(2),
+                correct: correct,
+                wrong: wrong,
+                skipped: skipped,
+                negative: (wrong * 0.66).toFixed(2),
+                time: formatTime(totalSeconds)
+            })
         }).then(() => {
             document.getElementById("result").innerHTML = `
                 <h2 style='color:#7CFC00; font-size:32px;'>टेस्ट समाप्त! 🎉</h2>
                 <p><b>अंक:</b> ${score.toFixed(2)} | <b>समय:</b> ${formatTime(totalSeconds)}</p>
-                <br><button onclick="tg.close()">App Band Karein</button>
-            `;
+                <br><button onclick="tg.close()">App Band Karein</button>`;
         });
     }
 
-    // Anti-Cheat
     document.addEventListener('contextmenu', e => e.preventDefault());
-    document.addEventListener('visibilitychange', () => {
-        if (document.hidden && document.getElementById("quizBox").style.display === "block") tg.showConfirm("⚠️ टैब न बदलें!");
-    });
 </script>
 </body>
 </html>
